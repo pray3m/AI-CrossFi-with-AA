@@ -18,7 +18,7 @@ const Header: React.FC = () => {
   return (
     <>
       <Menu />
-      <div id="main-content">
+      <div id="main-content" className="">
         <IonHeader>
           <IonToolbar className="bg-background-secondary py-2">
             <IonButtons slot="start">
@@ -28,9 +28,7 @@ const Header: React.FC = () => {
               <IonImg className="mx-auto mt-2 h-16 w-32" src="AppLogo.svg" />
             ) : path === "/bridge" ? (
               <IonItem className="no-border-bottom pt-3">
-                <IonText className="mx-auto font-semibold text-2xl">
-                  Bridge & Swap
-                </IonText>
+                <IonText className="mx-auto font-semibold text-2xl">Bridge & Swap</IonText>
               </IonItem>
             ) : null}
           </IonToolbar>
