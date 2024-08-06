@@ -9,7 +9,7 @@ import {
   IonSelectOption,
 } from "@ionic/react";
 import React, { useState } from "react";
-import { getTokenOptions } from "../src/config/helpers";
+import { getTokenOptions } from "../../config/helpers";
 
 const TradeForm: React.FC = () => {
   const [tokenName, setTokenName] = useState("");
@@ -25,17 +25,8 @@ const TradeForm: React.FC = () => {
   };
 
   return (
-    <IonContent className="">
+    <IonContent>
       <div className="ion-margin" color="primary">
-        {/* <IonItem className="ion-margin">
-            <IonInput
-              label="Token"
-              labelPlacement="floating"
-              placeholder="Enter token name"
-              onIonChange={(e) => setTokenName(e.detail.value!)}
-            ></IonInput>
-          </IonItem> */}
-
         <IonItem className="ion-margin">
           <IonSelect
             label="Token"
