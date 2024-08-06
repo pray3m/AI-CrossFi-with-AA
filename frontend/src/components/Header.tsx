@@ -19,6 +19,7 @@ const Header: React.FC = () => {
     <>
       <Menu />
       <div id="main-content">
+
         <IonHeader>
           <IonToolbar className="bg-background-secondary py-2">
             <IonButtons slot="start">
@@ -31,6 +32,7 @@ const Header: React.FC = () => {
                 <IonText className="mx-auto font-semibold text-2xl">
                   Bridge & Swap
                 </IonText>
+
               </IonItem>
             ) : null}
           </IonToolbar>

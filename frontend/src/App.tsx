@@ -27,7 +27,6 @@ const App: React.FC = () => {
         <AuthenticatedRoute path="/home" exact component={Home} />
         <AuthenticatedRoute path="/bridge" exact component={BridgeForm} />
         <AuthenticatedRoute path="/trade" exact component={TradeForm} />
-        <AuthenticatedRoute path="/trade" exact component={TradeForm} />
       </Switch>
     </IonRouterOutlet>
   );
