@@ -43,7 +43,7 @@ const TradeForm: React.FC = () => {
         <IonSegmentButton value="sell">Sell</IonSegmentButton>
       </IonSegment>
 
-      <div className="ion-padding ion-margin-top b" color="primary">
+      <div className="ion-padding ion-margin-top" color="primary">
         <IonItem className="ion-margin ">
           <IonSelect
             label="Token"
