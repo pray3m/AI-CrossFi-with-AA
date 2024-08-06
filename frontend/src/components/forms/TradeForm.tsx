@@ -5,6 +5,8 @@ import {
   IonInput,
   IonItem,
   IonRow,
+  IonSegment,
+  IonSegmentButton,
   IonSelect,
   IonSelectOption,
 } from "@ionic/react";
@@ -12,28 +14,43 @@ import React, { useState } from "react";
 import { getTokenOptions } from "../../config/helpers";
 
 const TradeForm: React.FC = () => {
-  const [tokenName, setTokenName] = useState("");
-  const [targetPrice, setTargetPrice] = useState("");
-  const [amountUSD, setAmountUSD] = useState("");
+  const [tokenName, setTokenName] = useState<string>("");
+  const [targetPrice, setTargetPrice] = useState<string>("");
+  const [amountUSD, setAmountUSD] = useState<string>("");
+  const [action, setAction] = useState<string>("buy");
 
-  const handleBuy = () => {
-    console.log(`Buy : ${tokenName} @  ${targetPrice} ->  ${amountUSD}`);
-  };
-
-  const handleSell = () => {
-    console.log(`Sell : ${tokenName} @  ${targetPrice} -> ${amountUSD}`);
+  const handleAction = () => {
+    if (action === "buy") {
+      console.log(`Buy: ${tokenName} @ ${targetPrice} -> ${amountUSD}`);
+    } else {
+      console.log(`Sell: ${tokenName} @ ${targetPrice} -> ${amountUSD}`);
+    }
   };
 
   return (
     <IonContent>
-      <div className="ion-margin" color="primary">
-        <IonItem className="ion-margin">
+      <IonSegment
+        value={action}
+        onIonChange={(e) => {
+          const selectedAction = e.detail.value as string | undefined;
+          if (selectedAction) {
+            setAction(selectedAction);
+          }
+        }}
+        className="ion-margin-top"
+      >
+        <IonSegmentButton value="buy">Buy</IonSegmentButton>
+        <IonSegmentButton value="sell">Sell</IonSegmentButton>
+      </IonSegment>
+
+      <div className="ion-padding ion-margin-top b" color="primary">
+        <IonItem className="ion-margin ">
           <IonSelect
             label="Token"
             interface="popover"
-            placeholder="Select "
+            placeholder="Select"
             value={tokenName}
-            onIonChange={(e) => setTokenName(e.detail.value)}
+            onIonChange={(e) => setTokenName(e.detail.value!)}
           >
             {getTokenOptions().map((option) => (
               <IonSelectOption key={option.value} value={option.value}>
@@ -43,46 +60,58 @@ const TradeForm: React.FC = () => {
           </IonSelect>
         </IonItem>
 
-        <IonItem className="ion-margin">
-          <IonInput
-            onIonChange={(e) => setTargetPrice(e.detail.value!)}
-            label="Price"
-            labelPlacement="floating"
-            placeholder="Enter target price"
-          ></IonInput>
-        </IonItem>
-        <IonItem className="ion-margin">
-          <IonInput
-            label="Amount "
-            labelPlacement="floating"
-            placeholder="Enter amount in USD"
-            onIonChange={(e) => setAmountUSD(e.detail.value!)}
-          ></IonInput>
-        </IonItem>
+        {action === "buy" && (
+          <>
+            <IonItem className="ion-margin">
+              <IonInput
+                onIonChange={(e) => setTargetPrice(e.detail.value!)}
+                label="Price"
+                labelPlacement="floating"
+                placeholder="Enter target price"
+              ></IonInput>
+            </IonItem>
+            <IonItem className="ion-margin">
+              <IonInput
+                label="Amount"
+                labelPlacement="floating"
+                placeholder="Enter amount in USD"
+                onIonChange={(e) => setAmountUSD(e.detail.value!)}
+              ></IonInput>
+            </IonItem>
+          </>
+        )}
+
+        {action === "sell" && (
+          <>
+            <IonItem className="ion-margin">
+              <IonInput
+                onIonChange={(e) => setTargetPrice(e.detail.value!)}
+                label="Sell Price"
+                labelPlacement="floating"
+                placeholder="Enter sell price"
+              ></IonInput>
+            </IonItem>
+            <IonItem className="ion-margin">
+              <IonInput
+                label="Amount"
+                labelPlacement="floating"
+                placeholder="Enter amount to sell in USD"
+                onIonChange={(e) => setAmountUSD(e.detail.value!)}
+              ></IonInput>
+            </IonItem>
+          </>
+        )}
       </div>
 
       <IonRow className="ion-margin">
         <IonCol>
           <IonButton
-            onClick={handleBuy}
-            className="ion-margin "
-            expand="block"
-            color="success"
-            fill="outline"
-          >
-            Buy
-          </IonButton>
-        </IonCol>
-
-        <IonCol>
-          <IonButton
-            onClick={handleSell}
+            onClick={handleAction}
             className="ion-margin"
             expand="block"
-            color="danger"
-            fill="outline"
+            color={action === "buy" ? "success" : "danger"}
           >
-            Sell
+            {action === "buy" ? "Buy" : "Sell"}
           </IonButton>
         </IonCol>
       </IonRow>
