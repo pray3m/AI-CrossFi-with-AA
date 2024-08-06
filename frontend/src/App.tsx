@@ -11,6 +11,7 @@ import SignupEmail from "./pages/auth/SignupEmail";
 import SignupPassword from "./pages/auth/SignupPassword";
 import VerifyEmail from "./pages/auth/VerifyEmail";
 import Home from "./pages/Home";
+import TradeForm from "../forms/TradeForm";
 
 const App: React.FC = () => {
   const dispatch = useDispatch();
@@ -25,6 +26,7 @@ const App: React.FC = () => {
         <Route path="/signup/verifyEmail" exact component={VerifyEmail} />
         <AuthenticatedRoute path="/home" exact component={Home} />
         <AuthenticatedRoute path="/bridge" exact component={BridgeForm} />
+        <AuthenticatedRoute path="/trade" exact component={TradeForm} />
       </Switch>
     </IonRouterOutlet>
   );
