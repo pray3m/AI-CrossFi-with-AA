@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from "react";
 import {
   IonButton,
+  IonButtons,
   IonCol,
   IonContent,
   IonGrid,
+  IonHeader,
   IonIcon,
   IonImg,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonRow,
   IonSelect,
   IonSelectOption,
   IonText,
+  IonTitle,
+  IonToolbar,
+  IonToast,
+  IonLoading,
 } from "@ionic/react";
 import { BigNumber } from "ethers";
 import { useDispatch, useSelector } from "react-redux";
@@ -40,6 +47,9 @@ const MyForm: React.FC = () => {
   const [toToken, setToToken] = useState<string>("");
   const [toChain, setToChain] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
   const { smartAccount } = useSelector((state: RootState) => state.wallet);
@@ -79,13 +89,19 @@ const MyForm: React.FC = () => {
   };
 
   const handleSwap = async () => {
-    if (!smartAccount) return; // Early exit if smartAccount is not available
+    if (!smartAccount) return;
+
+    setIsLoading(true); // Show spinner
 
     const client = createClient();
 
     try {
-      const { fromTokenDetails, fromChainDetails, toTokenDetails, toChainDetails } =
-        validateTokenAndChain(fromToken, fromChain, toToken, toChain);
+      const {
+        fromTokenDetails,
+        fromChainDetails,
+        toTokenDetails,
+        toChainDetails,
+      } = validateTokenAndChain(fromToken, fromChain, toToken, toChain);
 
       const swapDetails = {
         fromTokenSymbol: fromTokenDetails.symbol,
@@ -111,14 +127,13 @@ const MyForm: React.FC = () => {
         contractAddress: swapDetails.fromTokenAddress,
       });
 
-      const parsedBigNumberAllownce = BigNumber.from(allowance.toString());
+      const parsedBigNumberAllowance = BigNumber.from(allowance.toString());
 
-      const swapAmount = BigNumber.from(Math.floor(Number(swapDetails.amount))).mul(
-        BigNumber.from("1000000000000000000")
-      );
+      const swapAmount = BigNumber.from(
+        Math.floor(Number(swapDetails.amount))
+      ).mul(BigNumber.from("1000000000000000000"));
 
-      if (!parsedBigNumberAllownce.gte(swapAmount)) {
-        // TODO Add new MODAL TO SHOW WE ARE APPROVING TOKEN TO SWAP PLEASE WAIT FOR SOME TIME
+      if (!parsedBigNumberAllowance.gte(swapAmount)) {
         await approveERC20({
           smartAccount,
           client,
@@ -129,7 +144,7 @@ const MyForm: React.FC = () => {
         });
       }
 
-      const bridged = await bridgeToken({
+      await bridgeToken({
         tokenAddress: swapDetails.fromTokenAddress,
         destinationLaneId,
         receiver: smartAccount.address,
@@ -139,8 +154,13 @@ const MyForm: React.FC = () => {
         chain: chainDetail.chain,
         smartAccount,
       });
-    } catch (error) {
-      console.error("Errror during swap", error);
+
+      setIsLoading(false); // Hide spinner
+      setIsOpen(true); // Open modal
+    } catch (error: any) {
+      setIsLoading(false); // Hide spinner
+      setToastMessage("Error during swap: " + error.message); // Show toast message
+      console.error("Error during swap", error);
     }
   };
 
@@ -215,13 +235,20 @@ const MyForm: React.FC = () => {
                     interface="popover"
                     placeholder="Select "
                     value={toToken ? `${toToken}-${toChain}` : ""}
-                    onIonChange={(e) => handleTokenChange(e.detail.value, false)}
+                    onIonChange={(e) =>
+                      handleTokenChange(e.detail.value, false)
+                    }
                   >
-                    {getFilteredTokenOptions(fromToken, fromChain).map((option) => (
-                      <IonSelectOption key={option.value} value={option.value}>
-                        {option.label}
-                      </IonSelectOption>
-                    ))}
+                    {getFilteredTokenOptions(fromToken, fromChain).map(
+                      (option) => (
+                        <IonSelectOption
+                          key={option.value}
+                          value={option.value}
+                        >
+                          {option.label}
+                        </IonSelectOption>
+                      )
+                    )}
                   </IonSelect>
                 </IonItem>
               </IonCol>
@@ -240,7 +267,9 @@ const MyForm: React.FC = () => {
                     interface="popover"
                     placeholder="Select "
                     value={toChain}
-                    onIonChange={(e) => handleChainChange(e.detail.value, false)}
+                    onIonChange={(e) =>
+                      handleChainChange(e.detail.value, false)
+                    }
                     disabled={!toToken}
                   >
                     {availableToChains.map((chainName) => (
@@ -277,6 +306,39 @@ const MyForm: React.FC = () => {
               </IonCol>
             </IonRow>
           </IonGrid>
+
+          <IonModal isOpen={isOpen} mode="ios">
+            <IonHeader>
+              <IonToolbar>
+                <IonTitle>Transaction Details</IonTitle>
+                <IonButtons slot="end">
+                  <IonButton onClick={() => setIsOpen(false)}>Close</IonButton>
+                </IonButtons>
+              </IonToolbar>
+            </IonHeader>
+            <IonContent className="ion-padding">
+              <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Magni
+                illum quidem recusandae ducimus quos reprehenderit. Veniam,
+                molestias quos, dolorum consequuntur nisi deserunt omnis id illo
+                sit cum qui. Eaque, dicta.
+              </p>
+            </IonContent>
+          </IonModal>
+
+          {/* Loading Spinner */}
+          <IonLoading
+            isOpen={isLoading}
+            message={"Processing your transaction..."}
+          />
+
+          {/* Toast for Error Messages */}
+          <IonToast
+            isOpen={!!toastMessage}
+            message={toastMessage || ""}
+            duration={3000}
+            onDidDismiss={() => setToastMessage(null)}
+          />
         </div>
       </IonContent>
     </>
