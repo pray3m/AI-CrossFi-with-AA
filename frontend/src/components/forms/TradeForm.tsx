@@ -7,33 +7,48 @@ import {
   IonRow,
   IonSelect,
   IonSelectOption,
+  IonToast,
 } from "@ionic/react";
-import React, { useState } from "react";
+import React from "react";
 import { getTokenOptions } from "../../config/helpers";
+import useTradeForm from "../../hooks/useTradeForm";
+import ActionSegment from "./ActionSegment";
 
 const TradeForm: React.FC = () => {
-  const [tokenName, setTokenName] = useState("");
-  const [targetPrice, setTargetPrice] = useState("");
-  const [amountUSD, setAmountUSD] = useState("");
-
-  const handleBuy = () => {
-    console.log(`Buy : ${tokenName} @  ${targetPrice} ->  ${amountUSD}`);
-  };
-
-  const handleSell = () => {
-    console.log(`Sell : ${tokenName} @  ${targetPrice} -> ${amountUSD}`);
-  };
+  const { formState, handleTokenChange, handleAction, setFormState } =
+    useTradeForm();
+  const {
+    tokenName,
+    chainName,
+    targetPrice,
+    amountUSD,
+    action,
+    showToast,
+    toastMessage,
+  } = formState;
 
   return (
     <IonContent>
-      <div className="ion-margin" color="primary">
+      <div className="mt-5 w-72 mx-auto">
+        <ActionSegment
+          action={action}
+          onChange={(newAction) =>
+            setFormState((prevState) => ({
+              ...prevState,
+              action: newAction,
+            }))
+          }
+        />
+      </div>
+
+      <div className="ion-padding ion-margin-top" color="primary">
         <IonItem className="ion-margin">
           <IonSelect
             label="Token"
             interface="popover"
-            placeholder="Select "
-            value={tokenName}
-            onIonChange={(e) => setTokenName(e.detail.value)}
+            placeholder="Select"
+            value={`${tokenName}-${chainName}`}
+            onIonChange={(e) => handleTokenChange(e.detail.value!)}
           >
             {getTokenOptions().map((option) => (
               <IonSelectOption key={option.value} value={option.value}>
@@ -45,47 +60,67 @@ const TradeForm: React.FC = () => {
 
         <IonItem className="ion-margin">
           <IonInput
-            onIonChange={(e) => setTargetPrice(e.detail.value!)}
-            label="Price"
+            value={targetPrice}
+            onIonChange={(e) =>
+              setFormState((prevState) => ({
+                ...prevState,
+                targetPrice: e.detail.value!,
+              }))
+            }
+            label={action === "buy" ? "Price" : "Sell Price"}
             labelPlacement="floating"
-            placeholder="Enter target price"
+            type="number"
+            placeholder={
+              action === "buy" ? "Enter target price" : "Enter sell price"
+            }
           ></IonInput>
         </IonItem>
         <IonItem className="ion-margin">
           <IonInput
-            label="Amount "
+            value={amountUSD}
+            onIonChange={(e) =>
+              setFormState((prevState) => ({
+                ...prevState,
+                amountUSD: e.detail.value!,
+              }))
+            }
+            label="Amount"
+            type="number"
             labelPlacement="floating"
-            placeholder="Enter amount in USD"
-            onIonChange={(e) => setAmountUSD(e.detail.value!)}
+            placeholder={
+              action === "buy"
+                ? "Enter amount in USD"
+                : "Enter amount to sell in USD"
+            }
           ></IonInput>
         </IonItem>
       </div>
 
-      <IonRow className="ion-margin">
+      <IonRow className="mx-5">
         <IonCol>
           <IonButton
-            onClick={handleBuy}
-            className="ion-margin "
-            expand="block"
-            color="success"
-            fill="outline"
-          >
-            Buy
-          </IonButton>
-        </IonCol>
-
-        <IonCol>
-          <IonButton
-            onClick={handleSell}
+            onClick={handleAction}
             className="ion-margin"
             expand="block"
-            color="danger"
-            fill="outline"
+            color={action === "buy" ? "success" : "danger"}
           >
-            Sell
+            {action === "buy" ? "Buy" : "Sell"}
           </IonButton>
         </IonCol>
       </IonRow>
+
+      <IonToast
+        isOpen={showToast}
+        onDidDismiss={() =>
+          setFormState((prevState) => ({
+            ...prevState,
+            showToast: false,
+          }))
+        }
+        message={toastMessage}
+        duration={2000}
+        position="bottom"
+      />
     </IonContent>
   );
 };
